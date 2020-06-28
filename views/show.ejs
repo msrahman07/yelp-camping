@@ -1,0 +1,12 @@
+<%- include('partials/header') %>
+<!-- <h4><%= camp.name %></h4>
+<img src="<%= camp.image %>"> -->
+<div class="col-6 container">
+    <h1>Welcome to show page</h1>
+    <h3><%= camp.name %></h3>
+    <figure class="figure">
+        <img src="<%=camp.image%>" class="img-fluid img-thumbnail">
+    </figure>
+    <p><%=camp.description%></p>
+</div>
+<%- include('partials/footer') %>
