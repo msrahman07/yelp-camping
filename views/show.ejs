@@ -8,5 +8,11 @@
         <img src="<%=camp.image%>" class="img-fluid img-thumbnail">
     </figure>
     <p><%=camp.description%></p>
+    <hr>
+    <Label>Comments</Label>
+    <%for(let comment in camp.comments){%>
+        <p><strong><%=camp.comments[comment].author%></strong> - <%=camp.comments[comment].text%></p>
+        <hr>
+    <%}%>
 </div>
 <%- include('partials/footer') %>
