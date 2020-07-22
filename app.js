@@ -1,82 +1,91 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const app = express();
 const bodyParser = require("body-parser");
+
 //const { urlencoded } = require("express");
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended : true}));
 
 //database mongodb connection
-const MongoClient = require('mongodb').MongoClient;
-const ObjectId = require('mongodb');
-const url = 'mongodb://127.0.0.1:27017';
-const dbName = 'yelp-camp'
-let db
-let id = 0
+// const MongoClient = require('mongodb').MongoClient;
+// const ObjectId = require('mongodb');
+// const url = 'mongodb://127.0.0.1:27017';
+// const dbName = 'yelp-camp'
+//let db
+// DB connection
+mongoose.connect("mongodb://localhost/yelp-camp", { useNewUrlParser: true, useUnifiedTopology: true });
+let Campground = require("./models/campground");
 
-MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
-    if (err) return console.log(err)
 
-    // Storing a reference to the database so you can use it later
-    db = client.db(dbName)
-    console.log(`Connected MongoDB: ${url}`)
-    console.log(`Database: ${dbName}`);
+// MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
+//     if (err) return console.log(err)
 
-    app.get("/campgrounds", (req, res) => {
-        db.collection('campgrounds').find().toArray()
-            .then(campgrounds => {
-                //console.log(campgrounds);
-                res.render("index.ejs", {camps : campgrounds});
-            })
-            .catch(err => {
-                console.log(err)
-            });
-        
+//     // Storing a reference to the database so you can use it later
+//     db = client.db(dbName)
+//     console.log(`Connected MongoDB: ${url}`)
+//     console.log(`Database: ${dbName}`);
+//     //client.close();
+// });
+// Campground.create({
+//     name: "Scott's Island",
+//     image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
+//     description: "Nice place, great view. lots of bears"
+// });
+app.get("/campgrounds", (req, res) => {
+    Campground.find((err, campgrounds)=>{
+        if(err){
+            console.log(err);
+        }
+        else{
+        res.render("index.ejs", {camps : campgrounds})
+        //res.send("Hola");
+        }
     });
-    app.post("/campgrounds", (req, res) => {
-        //console.log(req.body);
-        db.collection('campgrounds').insertOne(
-            {
-                '_id': id, 
-                'name': req.body.name, 
-                'image': req.body.image,
-                'description' : req.body.description
-            })
-            .then(results => {
-                id += 1;
-                res.redirect("/campgrounds");
-            })
-            .catch(err =>{
-                console.log(err);
-            });
-        //data.push({name: req.body.name, image: req.body.image});
+});
+app.post("/campgrounds", (req, res) => {
+    console.log(req.body.camp);
+    Campground.create(req.body.camp, (err, camp)=>{
+        if(err){
+            console.log(err);
+        }
+        else{
+            console.log("New Camp inserted!!!!");
+        }
     });
+});
 
-    app.get("/campgrounds/:id", (req, res) =>{
-        //console.log(req.params.id)
-        db.collection("campgrounds").findOne({_id: parseInt(req.params.id)})
-            .then(data => {
-                //console.log(data);
-                res.render("show.ejs", {camp : data});
+app.get("/campgrounds/new", (req, res)=>{
+    res.render("new");
+})
 
-            })
-            .catch(err => {
-                console.log(err);
-            })
-        //console.log(camp)
-        //console.log(campground);
-    });
-    //client.close();
+app.get("/campgrounds/:id", (req, res) =>{
+    //console.log(req.params.id)
+    Campground.findById(req.params.id, (err, camp)=>{
+        if(err){
+            console.log(err);
+        }
+        else{
+            //res.send(req.params.id)
+            res.render("show.ejs", {camp : camp});
+        }
+    })
+    // db.collection("campgrounds").findOne({_id: parseInt(req.params.id)})
+    //     .then(data => {
+    //         //console.log(data);
+    //         res.render("show.ejs", {camp : data});
+
+    //     })
+    //     .catch(err => {
+    //         console.log(err);
+    //     })
+    //console.log(camp)
+    //console.log(campground);
 });
 
 app.get("/", function(req, res){
     res.render("home.ejs");
 });
-
-
-app.get("/campgrounds/new", (req, res) =>{
-    res.render("new.ejs");
-});
-
 
 app.listen(3000, function(){
     console.log("server started");
