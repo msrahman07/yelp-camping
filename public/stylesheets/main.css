@@ -1,0 +1,17 @@
+.figure {
+    width: 100%;
+}
+.figure-img{
+    width: 100%;
+}
+.img-thumbnail {
+    padding: 0;
+}
+
+.custome-pad {
+    padding: 6px;
+}
+
+.navbar {
+    margin-bottom: 1em;
+}
