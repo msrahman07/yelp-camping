@@ -1,4 +1,7 @@
 const express = require("express"),
+    Campground = require("./models/campground"),
+    Comment = require("./models/comment"),
+    seedDb = require("./seed"),
     mongoose = require("mongoose"),
     app = express(),
     bodyParser = require("body-parser");
@@ -15,9 +18,6 @@ app.use(bodyParser.urlencoded({extended : true}));
 //let db
 // DB connection
 mongoose.connect("mongodb://localhost/yelp-camp", { useNewUrlParser: true, useUnifiedTopology: true });
-let Campground = require("./models/campground"),
-    Comment = require("./models/comment"),
-    seedDb = require("./seed");
 seedDb();
 
 
@@ -41,7 +41,7 @@ app.get("/campgrounds", (req, res) => {
             console.log(err);
         }
         else{
-        res.render("index.ejs", {camps : campgrounds})
+        res.render("campgrounds/index.ejs", {camps : campgrounds})
         //res.send("Hola");
         }
     });
@@ -59,7 +59,7 @@ app.post("/campgrounds", (req, res) => {
 });
 
 app.get("/campgrounds/new", (req, res)=>{
-    res.render("new");
+    res.render("campgrounds/new");
 })
 
 app.get("/campgrounds/:id", (req, res) =>{
@@ -71,7 +71,7 @@ app.get("/campgrounds/:id", (req, res) =>{
         else{
             //res.send(req.params.id)
             console.log(camp.comments[0].text)
-            res.render("show.ejs", {camp : camp});
+            res.render("campgrounds/show.ejs", {camp : camp});
         }
     })
     // db.collection("campgrounds").findOne({_id: parseInt(req.params.id)})
@@ -86,7 +86,39 @@ app.get("/campgrounds/:id", (req, res) =>{
     //console.log(camp)
     //console.log(campground);
 });
+//========================================================
+app.get("/campgrounds/:id/comments/new", (req, res)=>{
+    Campground.findById(req.params.id, (err, camp)=>{
+        if(err){
+            console.log(err);
+        }
+        else{
+            res.render("comments/new", {camp: camp});
+        }
+    });
+});
 
+app.post("/campgrounds/:id/comments", (req, res)=>{
+    Comment.create(req.body.comment, (err, comment)=>{
+        if(err){
+            console.log(err);
+        }
+        else{
+            Campground.findById(req.params.id, (err, camp)=>{
+                if(err){
+                    console.log(err);
+                }
+                else{
+                    camp.comments.push(comment);
+                    camp.save();
+                    res.redirect("/campgrounds/"+camp._id);
+                }                
+            });
+        }
+    })
+});
+
+//========================================================
 app.get("/", function(req, res){
     res.render("home.ejs");
 });
