@@ -6,6 +6,7 @@ const express   = require("express"),                   // import expressjs
     seedDb      = require("./seed"),                    // seed db from seed.js
     mongoose    = require("mongoose"),                  // mongoose for mongodb
     app         = express(),                            // run express() as app
+    methodOverride = require("method-override"),
     bodyParser  = require("body-parser");               // needed to parse request body
 
 //==================================================
@@ -37,9 +38,10 @@ app.use((req, res, next)=>{
     res.locals.currentUser = req.user;
     next();
 });
+app.use(methodOverride("_method"));
 
 mongoose.connect("mongodb://localhost/yelp-camp", { useNewUrlParser: true, useUnifiedTopology: true });
-seedDb();
+//seedDb();
 
 const commentRoutes    = require("./routes/comments"),
       campgroundRoutes = require("./routes/campgrounds"),

@@ -17,12 +17,17 @@
                     <img class="figure-img img-fluid" src="<%=camp.image%>" class="img-fluid img-thumbnail">
                     <figcaption class="custome-pad float-left figure-caption">
                         <h4><a href=""><%= camp.name %></a></h4>
+                        <h6><em>submitted by - <strong><%= camp.author.username %></strong></em></h6>
                     </figcaption>
                     <figcaption class="custome-pad float-right figure-caption">
                         <h6>9.99/night</h6>
                     </figcaption>
                 </figure>
                 <p class="custome-pad"><%=camp.description%></p>
+                <a class="btn btn-warning" href="/campgrounds/<%=camp._id%>/edit">Edit</a>
+                <form action="/campgrounds/<%=camp._id%>?_method=DELETE" method="POST">
+                    <input class="btn btn-danger" type="submit" value="Delete">
+                </form>
             </div>
             <br>
             <div class="card">
@@ -33,7 +38,7 @@
                         </div>
                         <div class="card-body">
                             <%for(let comment in camp.comments){%>
-                                <p><strong><%=camp.comments[comment].author%></strong> - <%=camp.comments[comment].text%></p>
+                                <p><strong><%=camp.comments[comment].author.username%></strong> <br> <%=camp.comments[comment].text%></p>
                                 <hr>
                             <%}%>
                             <!-- <div class="float-right">
