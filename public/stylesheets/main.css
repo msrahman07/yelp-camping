@@ -9,9 +9,13 @@
 }
 
 .custome-pad {
-    padding: 6px;
+    padding: 0 6px 0 6px;
 }
 
 .navbar {
     margin-bottom: 1em;
+}
+
+.delete-form{
+    display: inline;
 }

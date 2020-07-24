@@ -22,9 +22,11 @@ router.post("/", (req, res) => {
             console.log(err);
         }
         else{
-            camp.author = req.user;
+            camp.author.id = req.user._id;
+            camp.author.username = req.user.username;
+            
             camp.save();
-            console.log("New Camp inserted!!!!");
+            console.log("New Camp inserted!!!!"+camp.author.id);
             res.redirect("/campgrounds")
         }
     });
@@ -58,19 +60,25 @@ router.get("/:id", (req, res) =>{
     //console.log(camp)
     //console.log(campground);
 });
-
-router.get("/:id/edit", (req, res)=>{
+//Edit show page
+router.get("/:id/edit", checkCampgroundOwnership, (req, res)=>{
     Campground.findById(req.params.id, (err, camp)=>{
         if(err){
             console.log(err);
         }
         else{
-            res.render("campgrounds/edit", {camp: camp});
+            console.log("id: "+camp.author.id);
+            if(camp.author.id.equals(req.user._id)){
+                res.render("campgrounds/edit", {camp: camp});
+            }
+            else{
+                res.redirect("/campgrounds/"+camp._id)
+            }
         }
     });
 });
-
-router.put("/:id", (req, res)=>{
+// Update route
+router.put("/:id", checkCampgroundOwnership, (req, res)=>{
     Campground.updateOne({_id: req.params.id}, req.body.camp, (err, camp)=>{
         if(err){
             console.log(err);
@@ -81,8 +89,8 @@ router.put("/:id", (req, res)=>{
         }
     });
 });
-
-router.delete("/:id", (req, res)=>{
+// Delete route
+router.delete("/:id", checkCampgroundOwnership, (req, res)=>{
     Campground.deleteOne({_id: req.params.id}, (err, camp)=>{
         if(err){
             console.log(err);
@@ -99,6 +107,27 @@ function isLoggedIn(req, res, next){
         return next();
     }
     res.redirect("/login")
+}
+
+function checkCampgroundOwnership(req, res, next){
+    if(req.isAuthenticated()){
+        Campground.findById(req.params.id, (err, camp)=>{
+            if(err){
+                console.log(err);
+            }
+            else{
+                if(camp.author.id.equals(req.user._id)){
+                    next();
+                }
+                else{
+                    res.redirect("back");
+                }
+            }
+        });
+    }
+    else{
+        res.redirect("back");
+    }
 }
 
 module.exports = router;

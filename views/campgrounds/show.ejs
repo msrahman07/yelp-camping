@@ -24,10 +24,14 @@
                     </figcaption>
                 </figure>
                 <p class="custome-pad"><%=camp.description%></p>
-                <a class="btn btn-warning" href="/campgrounds/<%=camp._id%>/edit">Edit</a>
-                <form action="/campgrounds/<%=camp._id%>?_method=DELETE" method="POST">
-                    <input class="btn btn-danger" type="submit" value="Delete">
-                </form>
+                <% if(currentUser){ %>
+                    <% if(camp.author.id.equals(currentUser.id)){ %>
+                        <a class="btn btn-sm btn-warning" href="/campgrounds/<%=camp._id%>/edit">Edit</a>
+                        <form class="delete-form" action="/campgrounds/<%=camp._id%>?_method=DELETE" method="POST">
+                            <input class="btn btn-sm btn-danger" type="submit" value="Delete">
+                        </form>
+                    <% } %>
+                <% } %>                
             </div>
             <br>
             <div class="card">
@@ -52,8 +56,7 @@
                                 <%- include('../comments/new') %> 
                             <% } %>
                         </div>
-                    </div>
-                    
+                    </div>                    
                 </div>
             </div>
             <br>
