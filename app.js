@@ -156,7 +156,7 @@ app.post("/register", (req, res, next)=>{
         req.body.password,
         (err, user)=>{
             if(err){
-                res.redirect('/register');
+                return res.redirect('/register');
             }
             next()
         }
@@ -166,6 +166,20 @@ app.post("/register", (req, res, next)=>{
     failureRedirect: '/',
     failureMessage: 'registration failed'
 }));
+
+app.get("/login", (req, res)=>{
+    res.render("login");
+});
+
+app.post("/login", passport.authenticate("local", {
+    successRedirect: "/campgrounds",
+    failureRedirect: "/login",
+    failureMessage: "Invalid username or password"
+}) ,(req, res)=>{
+
+});
+
+//app.get("/logout")
 
 //========================================================
 app.get("/", function(req, res){
