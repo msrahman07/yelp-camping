@@ -1,15 +1,37 @@
-const express = require("express"),
-    Campground = require("./models/campground"),
-    Comment = require("./models/comment"),
-    seedDb = require("./seed"),
-    mongoose = require("mongoose"),
-    app = express(),
-    bodyParser = require("body-parser");
+//===================================================
+// regular modules
+const express   = require("express"),                   // import expressjs
+    Campground  = require("./models/campground"),       // import models
+    Comment     = require("./models/comment"),
+    seedDb      = require("./seed"),                    // seed db from seed.js
+    mongoose    = require("mongoose"),                  // mongoose for mongodb
+    app         = express(),                            // run express() as app
+    bodyParser  = require("body-parser");               // needed to parse request body
+
+//==================================================
+// Modules for authentication
+const passport  = require("passport"),
+      LocalStrategy = require("passport-local").Strategy;
+const User = require("./models/user");
+
+// Passport config
+app.use(require("express-session")({
+    secret: "savera",
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+//==================================================
 
 //const { urlencoded } = require("express");
-app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({extended : true}));
-app.use(express.static(__dirname + '/public'));
+
+app.set('view engine', 'ejs');                          // all views will be ejs files
+app.use(bodyParser.urlencoded({extended : true}));      // use of body-parser
+app.use(express.static(__dirname + '/public'));         // include public directory for css and js
 //database mongodb connection
 // const MongoClient = require('mongodb').MongoClient;
 // const ObjectId = require('mongodb');
@@ -17,6 +39,8 @@ app.use(express.static(__dirname + '/public'));
 // const dbName = 'yelp-camp'
 //let db
 // DB connection
+
+//connect mongodb using mongoose
 mongoose.connect("mongodb://localhost/yelp-camp", { useNewUrlParser: true, useUnifiedTopology: true });
 seedDb();
 
@@ -35,6 +59,7 @@ seedDb();
 //     image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
 //     description: "Nice place, great view. lots of bears"
 // });
+
 app.get("/campgrounds", (req, res) => {
     Campground.find((err, campgrounds)=>{
         if(err){
@@ -117,6 +142,30 @@ app.post("/campgrounds/:id/comments", (req, res)=>{
         }
     })
 });
+
+// Auth routes
+app.get("/register", (req, res)=>{
+    res.render("register");
+});
+
+app.post("/register", (req, res, next)=>{
+    User.register(
+        new User({
+            username: req.body.username
+        }),
+        req.body.password,
+        (err, user)=>{
+            if(err){
+                res.redirect('/register');
+            }
+            next()
+        }
+    );
+}, passport.authenticate('local', {
+    successRedirect: '/campgrounds',
+    failureRedirect: '/',
+    failureMessage: 'registration failed'
+}));
 
 //========================================================
 app.get("/", function(req, res){
