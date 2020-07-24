@@ -25,6 +25,8 @@ app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+
 //==================================================
 
 //const { urlencoded } = require("express");
@@ -32,6 +34,10 @@ passport.deserializeUser(User.deserializeUser());
 app.set('view engine', 'ejs');                          // all views will be ejs files
 app.use(bodyParser.urlencoded({extended : true}));      // use of body-parser
 app.use(express.static(__dirname + '/public'));         // include public directory for css and js
+app.use((req, res, next)=>{
+    res.locals.currentUser = req.user;
+    next();
+});
 //database mongodb connection
 // const MongoClient = require('mongodb').MongoClient;
 // const ObjectId = require('mongodb');
@@ -112,7 +118,7 @@ app.get("/campgrounds/:id", (req, res) =>{
     //console.log(campground);
 });
 //========================================================
-app.get("/campgrounds/:id/comments/new", (req, res)=>{
+app.get("/campgrounds/:id/comments/new", isLoggedIn ,(req, res)=>{
     Campground.findById(req.params.id, (err, camp)=>{
         if(err){
             console.log(err);
@@ -123,7 +129,7 @@ app.get("/campgrounds/:id/comments/new", (req, res)=>{
     });
 });
 
-app.post("/campgrounds/:id/comments", (req, res)=>{
+app.post("/campgrounds/:id/comments", isLoggedIn,(req, res)=>{
     Comment.create(req.body.comment, (err, comment)=>{
         if(err){
             console.log(err);
@@ -179,7 +185,17 @@ app.post("/login", passport.authenticate("local", {
 
 });
 
-//app.get("/logout")
+app.get("/logout", (req, res)=>{
+    req.logout();
+    res.redirect("/campgrounds");
+});
+
+function isLoggedIn(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect("/login")
+}
 
 //========================================================
 app.get("/", function(req, res){

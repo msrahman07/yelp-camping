@@ -39,7 +39,13 @@
                             <!-- <div class="float-right">
                                 <a href="/campgrounds/<%=camp._id%>/comments/new">add a comment</a>
                             </div>  -->
-                            <%- include('../comments/new') %> 
+                            <% if(!currentUser){ %>
+                                <div class="float-right">
+                                    <a class="btn btn-info" href="/login">Login to add a comment</a>
+                                </div>
+                            <% } else{ %>
+                                <%- include('../comments/new') %> 
+                            <% } %>
                         </div>
                     </div>
                     
