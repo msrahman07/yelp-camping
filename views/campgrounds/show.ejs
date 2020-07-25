@@ -43,10 +43,13 @@
                         <div class="card-body">
                             <%for(let comment in camp.comments){%>
                                 <p><strong><%=camp.comments[comment].author.username%></strong> <br> <%=camp.comments[comment].text%></p>
-                                <a class="btn btn-sm btn-warning" href="/campgrounds/<%=camp._id%>/comments/<%=camp.comments[comment].id%>/edit">edit</a>
-                                <form class="delete-form" action="/campgrounds/<%=camp._id%>/comments/<%=camp.comments[comment].id%>?_method=DELETE" method="POST">
-                                    <input class="btn btn-sm btn-danger" type="submit" value="Delete">
-                                </form>
+                                <% if(currentUser && camp.comments[comment].author.id.equals(currentUser.id)){ %>
+                                    <a class="btn btn-sm btn-warning" href="/campgrounds/<%=camp._id%>/comments/<%=camp.comments[comment].id%>/edit">edit</a>
+                                    <form class="delete-form" action="/campgrounds/<%=camp._id%>/comments/<%=camp.comments[comment].id%>?_method=DELETE" method="POST">
+                                        <input class="btn btn-sm btn-danger" type="submit" value="Delete">
+                                    </form>
+                                <%}%>
+                                
                                 <hr>
                             <%}%>
                             <!-- <div class="float-right">

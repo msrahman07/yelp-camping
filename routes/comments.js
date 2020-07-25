@@ -26,7 +26,8 @@ router.post("/", isLoggedIn,(req, res)=>{
                 }
                 else{
                     //add username and id to comment
-                    comment.author = req.user;
+                    comment.author.id = req.user.id;
+                    comment.author.username = req.user.username;
                     comment.save();
                     camp.comments.push(comment);
                     camp.save();
@@ -38,7 +39,7 @@ router.post("/", isLoggedIn,(req, res)=>{
     })
 });
 
-router.get("/:comment_id/edit", (req, res)=>{
+router.get("/:comment_id/edit", checkCommentOwnership, (req, res)=>{
     Campground.findById(req.params.id, (err, camp)=>{
         if(err){
             res.redirect("back");
@@ -51,13 +52,13 @@ router.get("/:comment_id/edit", (req, res)=>{
     })
 });
 
-router.put("/:comment_id", (req, res)=>{
+router.put("/:comment_id", checkCommentOwnership, (req, res)=>{
     Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, (err, comment)=>{
             res.redirect("/campgrounds/"+req.params.id);
     });
 });
 
-router.delete("/:comment_id", (req, res)=>{
+router.delete("/:comment_id", checkCommentOwnership, (req, res)=>{
     Comment.findByIdAndDelete(req.params.comment_id, (err, result)=>{
         if(err){
             res.redirect("back");
@@ -74,6 +75,27 @@ function isLoggedIn(req, res, next){
         return next();
     }
     res.redirect("/login")
+}
+
+function checkCommentOwnership(req, res, next){
+    if(req.isAuthenticated()){
+        Comment.findById(req.params.comment_id, (err, comment)=>{
+            if(err){
+                res.redirect("back");
+            }
+            else{
+                if(comment.author.id.equals(req.user.id)){
+                    next();
+                }
+                else{
+                    res.redirect("back");
+                }
+            }
+        });
+    }
+    else{
+        res.redirect("back")
+    }
 }
 
 module.exports = router;
