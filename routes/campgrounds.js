@@ -91,7 +91,7 @@ router.put("/:id", checkCampgroundOwnership, (req, res)=>{
 });
 // Delete route
 router.delete("/:id", checkCampgroundOwnership, (req, res)=>{
-    Campground.deleteOne({_id: req.params.id}, (err, camp)=>{
+    Campground.findByIdAndDelete(req.params.id, (err, camp)=>{
         if(err){
             console.log(err);
             res.redirect("/campgrounds/"+req.params.id);
