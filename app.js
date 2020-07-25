@@ -8,7 +8,11 @@ const express   = require("express"),                   // import expressjs
     app         = express(),                            // run express() as app
     methodOverride = require("method-override"),
     bodyParser  = require("body-parser");               // needed to parse request body
-
+// Flash message module
+const flash = require("connect-flash");
+app.use(flash());
+// first add message to the middleware
+// handle it in the route
 //==================================================
 // Modules for authentication
 const passport  = require("passport"),
@@ -36,6 +40,8 @@ app.use(bodyParser.urlencoded({extended : true}));      // use of body-parser
 app.use(express.static(__dirname + '/public'));         // include public directory for css and js
 app.use((req, res, next)=>{
     res.locals.currentUser = req.user;
+    res.locals.error = req.flash("error");
+    res.locals.success = req.flash("success");
     next();
 });
 app.use(methodOverride("_method"));

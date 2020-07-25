@@ -28,6 +28,7 @@ router.post("/", (req, res) => {
             
             camp.save();
             console.log("New Camp inserted!!!!"+camp.author.id);
+            req.flash("success", "Successfully created campground!!")
             res.redirect("/campgrounds")
         }
     });
@@ -82,10 +83,12 @@ router.get("/:id/edit", middleware.checkCampgroundOwnership, (req, res)=>{
 router.put("/:id", middleware.checkCampgroundOwnership, (req, res)=>{
     Campground.updateOne({_id: req.params.id}, req.body.camp, (err, camp)=>{
         if(err){
+            req.flash("error", "Something went wrong!!");
             console.log(err);
         }
         else{
             console.log("Successfully edited");
+            req.flash("success", "Successfully edited campground!!")
             res.redirect("/campgrounds/"+req.params.id);
         }
     });
@@ -95,9 +98,11 @@ router.delete("/:id", middleware.checkCampgroundOwnership, (req, res)=>{
     Campground.findByIdAndDelete(req.params.id, (err, camp)=>{
         if(err){
             console.log(err);
+            req.flash("error", "Something went wrong!!");
             res.redirect("/campgrounds/"+req.params.id);
         }
         else{
+            req.flash("success", "Successfully deleted campground!!")
             res.redirect("/campgrounds");
         }
     });

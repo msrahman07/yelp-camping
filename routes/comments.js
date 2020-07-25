@@ -55,7 +55,8 @@ router.get("/:comment_id/edit", middleware.checkCommentOwnership, (req, res)=>{
 
 router.put("/:comment_id", middleware.checkCommentOwnership, (req, res)=>{
     Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, (err, comment)=>{
-            res.redirect("/campgrounds/"+req.params.id);
+        req.flash("success", "Successfully edited comment!!")    
+        res.redirect("/campgrounds/"+req.params.id);
     });
 });
 
@@ -66,6 +67,7 @@ router.delete("/:comment_id", middleware.checkCommentOwnership, (req, res)=>{
         }
         else{
             console.log("Successfully deleted");
+            req.flash("success", "Successfully deleted comment!!")
             res.redirect("back");
         }
     })

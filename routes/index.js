@@ -15,15 +15,17 @@ router.post("/register", (req, res, next)=>{
         req.body.password,
         (err, user)=>{
             if(err){
+                req.flash("error", err.message);
                 return res.redirect('/register');
             }
-            next()
+            next();
         }
     );
 }, passport.authenticate('local', {
     successRedirect: '/campgrounds',
-    failureRedirect: '/',
-    failureMessage: 'registration failed'
+    failureRedirect: '/register',
+    failureFlash: 'registration failed',
+    successFlash: 'Welcome to yelp-camp'
 }));
 
 router.get("/login", (req, res)=>{
@@ -33,13 +35,16 @@ router.get("/login", (req, res)=>{
 router.post("/login", passport.authenticate("local", {
     successRedirect: "/campgrounds",
     failureRedirect: "/login",
-    failureMessage: "Invalid username or password"
+    failureFlash: "Incorrect username or password",
+    successFlash: "Welcome to yelp-camp"
+    //failureMessage: "Invalid username or password"
 }) ,(req, res)=>{
 
 });
 
 router.get("/logout", (req, res)=>{
     req.logout();
+    req.flash("success", "Logged you out")
     res.redirect("/campgrounds");
 });
 
