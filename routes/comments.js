@@ -16,28 +16,30 @@ router.get("/new", middleware.isLoggedIn ,(req, res)=>{
 });
 
 router.post("/", middleware.isLoggedIn,(req, res)=>{
-    Comment.create(req.body.comment, (err, comment)=>{
-        if(err){
-            console.log(err);
-        }
-        else{
-            Campground.findById(req.params.id, (err, camp)=>{
-                if(err){
-                    console.log(err);
-                }
-                else{
-                    //add username and id to comment
-                    comment.author.id = req.user.id;
-                    comment.author.username = req.user.username;
-                    comment.save();
-                    camp.comments.push(comment);
-                    camp.save();
-                    console.log(comment);
-                    res.redirect("/campgrounds/"+camp._id);
-                }                
-            });
-        }
-    })
+    if(req.body.comment.text.length > 0){
+        Comment.create(req.body.comment, (err, comment)=>{
+            if(err){
+                console.log(err);
+            }
+            else{
+                Campground.findById(req.params.id, (err, camp)=>{
+                    if(err){
+                        console.log(err);
+                    }
+                    else{
+                        //add username and id to comment
+                        comment.author.id = req.user.id;
+                        comment.author.username = req.user.username;
+                        comment.save();
+                        camp.comments.push(comment);
+                        camp.save();
+                        console.log(comment);
+                        res.redirect("/campgrounds/"+camp._id);
+                    }                
+                });
+            }
+        });
+    }
 });
 
 router.get("/:comment_id/edit", middleware.checkCommentOwnership, (req, res)=>{
