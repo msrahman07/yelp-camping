@@ -47,8 +47,14 @@ app.use((req, res, next)=>{
 app.use(methodOverride("_method"));
 
 //mongoose.connect("mongodb://localhost/yelp-camp", { useNewUrlParser: true, useUnifiedTopology: true });
-mongoose.connect("mongodb+srv://shahriar_07:yelpcamp123@yelp-camp.en3mg.mongodb.net/<dbname>?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
-
+mongoose.connect("mongodb+srv://shahriar_07:yelpcamp123@yelp-camp.en3mg.mongodb.net/<dbname>?retryWrites=true&w=majority", { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true 
+}).then(() => {
+    console.log("conneted to db!!");
+}).catch(err => {
+    console.log("Error: ", err.message);
+});
 //mongodb+srv://shahriar_07:<password>@yelp-camp.en3mg.mongodb.net/<dbname>?retryWrites=true&w=majority
 //seedDb();
 
